@@ -1,8 +1,5 @@
 name: Links-Home CI
 
-# Runs on every push and pull request to master.
-# Deployment: the app is hosted on Streamlit Community Cloud, which
-# redeploys automatically whenever master changes and these checks pass.
 on:
   push:
     branches: [ master ]
