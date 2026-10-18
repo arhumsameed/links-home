@@ -1,5 +1,8 @@
-name: Links-Home CI/CD Pipeline
+name: Links-Home CI
 
+# Runs on every push and pull request to master.
+# Deployment: the app is hosted on Streamlit Community Cloud, which
+# redeploys automatically whenever master changes and these checks pass.
 on:
   push:
     branches: [ master ]
@@ -17,20 +20,16 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.11'
+        cache: pip
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install uv
-        uv pip install --system streamlit pandas numpy scikit-learn torch plotly
+        pip install -r requirements.txt pytest
 
-    - name: Run Data & Model Verification Test
-      run: |
-        python -c "import pandas as pd; df = pd.read_csv('iot_cold_chain_logistics.csv'); print('Dataset verified successfully with rows:', len(df))"
-        python -c "import torch; print('PyTorch version:', torch.__version__)"
+    - name: Check syntax
+      run: python -m py_compile pipeline.py cold_chain.py
 
-    - name: Test Python Script Syntax
-      run: |
-        python -m py_compile cold_chain.py
-        echo "Script syntax check passed successfully."
+    - name: Run tests (data checks and model smoke test)
+      run: python -m pytest -q
